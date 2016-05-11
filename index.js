@@ -45,11 +45,25 @@ function setupMethods (soljson){
 		return JSON.parse(result);
 	}
 
+        var link = function(bytecode, libraries) {
+                for (var libraryName in libraries) {
+                        var libLabel = '__' + libraryName + Array(39 - libraryName.length).join('_');
+                        var hexAddress = libraries[libraryName];
+                        hexAddress = Array(40 - hexAddress.length + 1).join('0') + hexAddress;
+                        while (bytecode.indexOf(libLabel) >= 0) {
+                                bytecode = bytecode.replace(libLabel, hexAddress);
+                        }
+                }
+
+		return bytecode;
+        };
+
 	var version = soljson.cwrap("version", "string", []);
 
 	return {
 		version: version,
 		compile: compile,
+		link: link,
 		/// Use the given version if available.
 		useVersion: function (versionString) {
 			return setupMethods(require('./bin/soljson-' + versionString + '.js'));
